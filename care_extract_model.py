@@ -35,6 +35,7 @@ def main():
                 while "ENDMDL" not in traj[i]:
                     result.append(traj[i])
                     i += 1
+                result.append(traj[i])
                 i = len(traj)
         i += 1
     args.outfile.write(''.join(result))
