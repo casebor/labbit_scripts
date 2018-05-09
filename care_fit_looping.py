@@ -51,7 +51,6 @@ else:
         cmd.load(loop)
         p_name = os.path.basename(protein).split('.')[0]
         l_name = os.path.basename(loop).split('.')[0]
-        print(l_name, "<--- Loop name")
         #l_size = len(cmd.get_model(l_name).get_residues())
         cmd.select("p_s1", "/%s//%s/%d/N"  %(p_name, chain, ini-2))
         cmd.select("p_s2", "/%s//%s/%d/CA" %(p_name, chain, ini-2))
