@@ -29,13 +29,16 @@ class BrendaEntry:
     def __init__ (self):
         self.ec = None
         self.name = None
+        self.crystal_qtty = 0
         self.substrates_qtty = 0
         self.nat_substrates_qtty = 0
+        self.crystals = []
         self.references = []
         self.proteins = {}
         self.substrates = {}
         self.nat_substrates = {}
         self.inhibitors = {}
+        self.pdbs = set([])
     
     def _endline(self, line):
         return line.startswith('\n') or line.startswith('\\\\\\')
@@ -43,6 +46,9 @@ class BrendaEntry:
     def parse_id(self, line):
         elements = line.split()
         self.ec = elements[1]
+    
+    def add_pdb(self, code):
+        self.pdbs.add(code)
     
     def parse_name(self, instream):
         line = instream.readline()
@@ -105,6 +111,24 @@ class BrendaEntry:
             proteins = self._get_proteins(buffer)
             substrates = self._get_substrates(buffer)
             self.nat_substrates[substrates] = proteins
+    
+    def parse_crystals(self, instream):
+        line = instream.readline()
+        buffer = ''
+        while not self._endline(line):
+            if line.startswith('\t'):
+                buffer += ' '+line.strip().rstrip()
+            elif line.startswith('CR\t'):
+                self.crystal_qtty += 1
+                if buffer != '':
+                    proteins = self._get_proteins(buffer)
+                    self.crystals.append(proteins[0])
+                buffer = line.strip()
+            line = instream.readline()
+        if buffer != '':
+            proteins = self._get_proteins(buffer)
+            self.crystals.append(proteins[0])
+        assert(len(self.crystals)==self.crystal_qtty)
     
     def parse_references(self, instream):
         line = instream.readline()
@@ -220,7 +244,8 @@ Natural substrates in Brenda: %d
 EC Number: %s
 Substrates in Brenda: %d
 Natural substrates in Brenda: %d
-""" %(self.name, self.ec, self.substrates_qtty, self.nat_substrates_qtty)
+Quantity of PDB structures: %d
+""" %(self.name, self.ec, self.substrates_qtty, self.nat_substrates_qtty, len(self.pdbs))
         if extended:
             out_str += "List of Proteins and substrates used by them:\n"
             for protein in self.proteins.values():
@@ -246,9 +271,19 @@ Natural substrates in Brenda: %d
         return self.substrates_qtty >= other.substrates_qtty
     
 
+def add_pdbs_to_entries(instream, db):
+    for line in instream:
+        sections = line.strip().split('\t')
+        if len(sections[0].split('.')) == 4:
+            try:
+                db[sections[0].strip()].add_pdb(sections[1].strip())
+            except KeyError:
+                pass
+
 def main(args):
     brendafile = open(sys.argv[1], 'r')
     entries = []
+    brenda_db = {}
     line = brendafile.readline()
     buffer_line = ""
     while line:
@@ -256,6 +291,8 @@ def main(args):
             entry = BrendaEntry()
             entry.parse_id(line)
             entries.append(entry)
+        elif line.startswith('CRYSTALLIZATION'):
+            entry.parse_crystals(brendafile)
         elif line.startswith('INHIBITORS'):
             entry.parse_inhibitors(brendafile)
         elif line.startswith('PROTEIN'):
@@ -271,13 +308,12 @@ def main(args):
         line = brendafile.readline()
     brendafile.close()
     entries = sorted(entries, reverse=True)
-    flag = True
     for entry in entries:
         entry.update_substrates_per_protein()
-        if flag:
-            print(entry.inhibitors)
-            flag = False
-        #print(entry.proteins[entry.substrates_per_protein.index(max(entry.substrates_per_protein))+1])
+        brenda_db[entry.ec] = entry
+    for file in sys.argv[3:]:
+        with open(file, 'r') as instream:
+            add_pdbs_to_entries(instream, brenda_db)
     with open(sys.argv[2], 'w') as outstream:
         for entry in entries:
             outstream.write(entry.get_info(True))
