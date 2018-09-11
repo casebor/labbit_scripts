@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/home/carlos/Programs/pymol/bin/python
 # -*- coding: utf-8 -*-
 #
 #  care_fit_by_residue.py
@@ -52,11 +52,13 @@ else:
         cmd.select("a_s1", "/%s///%d/N"  %(a_name, pos))
         cmd.select("a_s2", "/%s///%d/CA" %(a_name, pos))
         cmd.select("a_s3", "/%s///%d/C"  %(a_name, pos))
+        cmd.select("a_s4", "/%s///%d/CB"  %(a_name, pos))
         cmd.select("a_s1", "/%s///%d/N"  %(b_name, pos))
         cmd.select("a_s2", "/%s///%d/CA" %(b_name, pos))
         cmd.select("a_s3", "/%s///%d/C"  %(b_name, pos))
+        cmd.select("a_s4", "/%s///%d/CB"  %(b_name, pos))
         out_loop = cmd.select("out_prot", "/%s////" %(b_name))
-        cmd.pair_fit("b_s1","a_s1", "b_s2","a_s2", "b_s3","a_s3")
+        cmd.pair_fit("b_s1","a_s1", "b_s2","a_s2", "b_s3","a_s3", "b_s4","a_s4")
         cmd.save(outfile, "out_prot")
     else:
         print("help")

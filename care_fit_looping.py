@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/home/carlos/Programs/pymol/bin/python
 # -*- coding: utf-8 -*-
 #
 #  care_fit_looping.py
