@@ -22,7 +22,7 @@
 #  
 #  
 
-import sys, warnings
+import sys, warnings, mcsa
 
 class BrendaEntry:
     
@@ -38,7 +38,8 @@ class BrendaEntry:
         self.substrates = {}
         self.nat_substrates = {}
         self.inhibitors = {}
-        self.pdbs = set([])
+        self.pdbs = {}
+        self.mcsa_entries = {}
     
     def _endline(self, line):
         return line.startswith('\n') or line.startswith('\\\\\\')
@@ -47,8 +48,13 @@ class BrendaEntry:
         elements = line.split()
         self.ec = elements[1]
     
-    def add_pdb(self, code):
-        self.pdbs.add(code)
+    def add_pdb(self, code, species):
+        if species.find('(')!=-1:
+            species = species[:species.index('(')].strip()
+        try:
+            self.pdbs[species].add(code)
+        except KeyError:
+            self.pdbs[species] = set([code])
     
     def parse_name(self, instream):
         line = instream.readline()
@@ -235,7 +241,8 @@ class BrendaEntry:
 EC Number: %s
 Substrates in Brenda: %d
 Natural substrates in Brenda: %d
-""" %(self.name, self.ec, self.substrates_qtty, self.nat_substrates_qtty)
+Quantity of PDB structures: %d
+""" %(self.name, self.ec, self.substrates_qtty, self.nat_substrates_qtty, len(self.pdbs))
         out_str += "-"*80 + "\n"
         return out_str
     
@@ -247,6 +254,11 @@ Natural substrates in Brenda: %d
 Quantity of PDB structures: %d
 """ %(self.name, self.ec, self.substrates_qtty, self.nat_substrates_qtty, len(self.pdbs))
         if extended:
+            species = list(self.pdbs.keys())
+            species.sort()
+            out_str += "List of PDBs and species:\n"
+            for sp in species:
+                out_str += "\t%s: %s\n" %(sp, ', '.join(self.pdbs[sp]))
             out_str += "List of Proteins and substrates used by them:\n"
             for protein in self.proteins.values():
                 out_str += "\t%s: %d\n" %(protein[0], protein[1])
@@ -270,18 +282,22 @@ Quantity of PDB structures: %d
     def __ge__(self, other):
         return self.substrates_qtty >= other.substrates_qtty
     
+    def add_mcsa_entries(self, mcsa_list):
+        for mcsa in mcsa_list:
+            self.mcsa_entries[mcsa.mcsa_id] = mcsa
+    
 
 def add_pdbs_to_entries(instream, db):
     for line in instream:
         sections = line.strip().split('\t')
         if len(sections[0].split('.')) == 4:
             try:
-                db[sections[0].strip()].add_pdb(sections[1].strip())
+                db[sections[0].strip()].add_pdb(sections[1].strip(), sections[2].strip())
             except KeyError:
                 pass
 
-def main(args):
-    brendafile = open(sys.argv[1], 'r')
+def parse_brenda(filename, pdbs):
+    brendafile = open(filename, 'r')
     entries = []
     brenda_db = {}
     line = brendafile.readline()
@@ -311,12 +327,31 @@ def main(args):
     for entry in entries:
         entry.update_substrates_per_protein()
         brenda_db[entry.ec] = entry
-    for file in sys.argv[3:]:
+    for file in pdbs:
         with open(file, 'r') as instream:
             add_pdbs_to_entries(instream, brenda_db)
+    return brenda_db, entries
+
+def fill_mcsa_entries_data(brenda_db, entries):
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+def main(args):
+    brenda_db, entries = parse_brenda(sys.argv[1], sys.argv[3:])
     with open(sys.argv[2], 'w') as outstream:
         for entry in entries:
             outstream.write(entry.get_info(True))
+    
     return 0
 
 if __name__ == '__main__':
