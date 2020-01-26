@@ -1,6 +1,8 @@
+#  Copyright 2019 Carlos Eduardo Sequeiros Borja <casebor@gmail.com>
+
 from pymol import cmd, stored
 
-def sirah_memb(sel1):
+def care_sirah_memb(sel1):
     """
 DESCRIPTION
 
@@ -51,6 +53,6 @@ EXAMPLES
     cmd.zoom(sel1)
 
 # let pymol know about the function
-cmd.extend("sirah_memb", sirah_memb)
+cmd.extend("care_sirah_memb", care_sirah_memb)
 
 
