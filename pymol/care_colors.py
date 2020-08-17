@@ -51,7 +51,12 @@ EXAMPLES
     """
     membrane = "{} and (resn CHL or resn LA or resn MY or resn OL or resn PA \
                 or resn PC or resn PE or resn POPC)".format(selection)
+    water = "{} and solvent".format(selection)
+    ions = "{} and (resn 'K*' or resn 'Cl*' or resn 'Na*')".format(selection)
     cmd.color("gray50", membrane)
+    cmd.select("{}_memb".format(selection), membrane)
+    cmd.select("{}_water".format(selection), water)
+    cmd.select("{}_ions".format(selection), ions)
     util.cnc(selection)
 # let pymol know about the function
 cmd.extend("care_color_membrane", care_color_membrane)
