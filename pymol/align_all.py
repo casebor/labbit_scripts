@@ -49,7 +49,7 @@ def align_all(target=None,mobile_selection='name ca',target_selection='name ca',
         rmsdict = cmd.cealign('%s & %s' % (target,target_selection),'%s & %s' % (object_list[i],mobile_selection))
         rms = [rmsdict['RMSD'],rmsdict['alignment_length'],1,0,0]
       else:
-        print "only 'align', 'super' and 'cealign' are accepted as methods"
+        print("only 'align', 'super' and 'cealign' are accepted as methods")
         sys.exit(-1)
     else:
       if method == 'align':
@@ -60,7 +60,7 @@ def align_all(target=None,mobile_selection='name ca',target_selection='name ca',
         rmsdict = cmd.cealign('%s & %s' % (target,target_selection),'%s & %s' % (object_list[i],mobile_selection))
         rms = [rmsdict['RMSD'],rmsdict['alignment_length'],1,0,0]
       else:
-        print "only 'align', 'super' and 'cealign' are accepted as methods"
+        print("only 'align', 'super' and 'cealign' are accepted as methods")
         sys.exit(-1)
 
     rmsd[object_list[i]] = (rms[0],rms[1])
@@ -68,12 +68,12 @@ def align_all(target=None,mobile_selection='name ca',target_selection='name ca',
 
   rmsd_list.sort(lambda x,y: cmp(x[1],y[1]))
 # loop over dictionary and print out matrix of final rms values
-  print "Aligning against:",target
+  print("Aligning against:",target)
   for object_name in object_list:
-    print "%s: %6.3f using %d atoms" % (object_name,rmsd[object_name][0],rmsd[object_name][1])
+    print("%s: %6.3f using %d atoms" % (object_name,rmsd[object_name][0],rmsd[object_name][1]))
 
-  print "\nSorted from best match to worst:"
+  print("\nSorted from best match to worst:")
   for r in rmsd_list:
-    print "%s: %6.3f using %d atoms" % r
+    print("%s: %6.3f using %d atoms" % r)
 
 cmd.extend('align_all',align_all)
