@@ -6,11 +6,12 @@ def coords(sel1="all", state1=1):
         """
 DESCRIPTION
 
-    Prints the coordinates of the selected elements
+    Prints the coordinates of the selected elements. The frame can be specified with the frame number after a comma
 
 USAGE
 
     coords selection
+    coords selection, frame
 
 EXAMPLES
 
