@@ -47,7 +47,4 @@ def parse_pdb(pdb_file):
             geom_center += atom.pos
         i += 1
     geom_center /= len(atoms)
-    print(geom_center)
-    print(min_x, max_x)
-    print(min_y, max_y)
-    print(min_z, max_z)
+    return atoms, geom_center, min_x, max_x, min_y, max_y, min_z, max_z
