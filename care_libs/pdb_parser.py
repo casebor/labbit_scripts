@@ -19,9 +19,9 @@ def parse_pdb(pdb_file):
     while i < len(pdb_list):
         if pdb_list[i].startswith("ATOM"):
             index = int(pdb_list[i][6:11])
-            name = pdb_list[i][12:16]
-            res_name = pdb_list[i][17:20]
-            chain = pdb_list[i][21]
+            name = pdb_list[i][12:16].strip()
+            res_name = pdb_list[i][17:20].strip()
+            chain = pdb_list[i][21].strip()
             res_index = int(pdb_list[i][22:26])
             x = float(pdb_list[i][30:38])
             if x < min_x:

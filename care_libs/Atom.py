@@ -14,7 +14,10 @@ RADII = {"C": (0.67, 0.76, 1.7), "H": (0.53, 0.31, 1.0), "O": (0.48, 0.66, 1.52)
          "Br": (0.94, 1.2, 1.85), "I": (1.15, 1.39, 1.98)}
 
 def _get_radius(name):
-    pass
+    if name in RADII:
+        return RADII[name][2]
+    else:
+        return 1.0
 
 def _get_vdw_rad(name):
     pass
@@ -39,7 +42,7 @@ class Atom:
         self.occupancy = occupancy
         self.bfactor = bfactor
         self.charge = charge
-        self.radius = _get_radius(name)
+        self.rad = _get_radius(name)
         self.vdw_rad = _get_vdw_rad(name)
         self.cov_rad = _get_cov_rad(name)
     
@@ -57,5 +60,5 @@ class Atom:
         return self.pos[2]
     
     def radius(self):
-        return self.radius
+        return self.rad
     
