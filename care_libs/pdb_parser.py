@@ -7,7 +7,7 @@
 import numpy as np
 from care_libs import Atom
 
-def parse_pdb(pdb_file):
+def parse_pdb(pdb_file, with_hex=False):
     with open(pdb_file, "r") as pdbstream:
         pdb_list = list(pdbstream)
     i = 0
@@ -16,13 +16,28 @@ def parse_pdb(pdb_file):
     min_x, max_x = 9999.9, -9999.9
     min_y, max_y = 9999.9, -9999.9
     min_z, max_z = 9999.9, -9999.9
+    hexflags = [False, False]
+    num_at_ids = 0
+    num_res_ids = 0
     while i < len(pdb_list):
         if pdb_list[i].startswith("ATOM"):
-            index = int(pdb_list[i][6:11])
+            if num_at_ids == 99999:
+                hexflags[0] = True
+            if hexflags[0]:
+                index = int(pdb_list[i][6:11], 16)
+            else:
+                index = int(pdb_list[i][6:11])
+            num_at_ids += 1
+            if num_res_ids == 9999:
+                hexflags[1] = True
+            if hexflags[1]:
+                res_index = int(pdb_list[i][22:26], 16)
+            else:
+                res_index = int(pdb_list[i][22:26])
+            num_res_ids += 1
             name = pdb_list[i][12:16].strip()
             res_name = pdb_list[i][17:20].strip()
             chain = pdb_list[i][21].strip()
-            res_index = int(pdb_list[i][22:26])
             x = float(pdb_list[i][30:38])
             if x < min_x:
                 min_x = x
