@@ -51,6 +51,15 @@ class Octree():
                     self.add_atom_to_children(atom)
     
     def add_atom_to_children(self, atom):
+        """ The position of the children will depend on their positions wrt
+            the 'origin' of the tree. Using the right hand rule, with the
+            middle finger as X axis, the thumb as Y axis and the index as
+            Z axis, we have eight children distributed as:
+            children   0   1   2   3   4   5   6   7
+                X      +   +   -   -   +   +   -   -
+                y      +   +   +   +   -   -   -   -
+                Z      +   -   -   +   +   -   -   +
+        """
         child_pos = np.abs(atom.coords() - self.origin)
         child_pos = np.array((atom.coords() - self.origin)/child_pos, dtype=np.int)
         child_pos = np.array(child_pos+1, dtype=np.bool)
@@ -105,10 +114,11 @@ class Octree():
     
     def initialize_children(self):
         # assert len(self.to_insert) == 0
-        self.children = [child for child in self.children if child is not None]
+        # self.children = [child for child in self.children if child is not None]
         for child in self.children:
-            child.initialize()
-            child.initialize_children()
+            if child is not None:
+                child.initialize()
+                child.initialize_children()
     
     def add_temp(self, atom):
         self.to_insert.append(atom)
