@@ -45,6 +45,10 @@ class Atom:
         self.rad = _get_radius(name)
         self.vdw_rad = _get_vdw_rad(name)
         self.cov_rad = _get_cov_rad(name)
+        self.connections = set()
+    
+    def id(self):
+        return self.index
     
     def coords(self):
         """ Function doc """
@@ -62,3 +66,19 @@ class Atom:
     def radius(self):
         return self.rad
     
+    def add_connection(self, other_atom):
+        self.connections.add(other_atom)
+    
+    def atoms_connected(self):
+        return self.connections
+    
+    def __str__(self):
+        out = "Atom id: {:>6} Coords: {:>8.3f} {:>8.3f} {:>8.3f} Name: {:>4}\n"
+        out += "     Residue: {:>4} Radius: {:>4.3f}\n"
+        out = out.format(self.index, self.pos[0], self.pos[1], self.pos[2], self.name,
+                         self.res_index, self.rad)
+        if len(self.connections) > 0:
+            out += "     Connected Atoms: "
+            for c in self.connections:
+                out += "{:>6}".format(c.id())
+        return out
